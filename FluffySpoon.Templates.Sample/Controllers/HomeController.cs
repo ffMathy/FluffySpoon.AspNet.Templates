@@ -4,9 +4,9 @@ namespace FluffySpoon.Templates.Sample.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        public string Foo()
         {
-            return View();
+            return "bar";
         }
     }
 }

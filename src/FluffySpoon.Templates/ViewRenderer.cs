@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace FluffySpoon.Templates
 {
-    public class ViewRenderer
+    public class ViewRenderer : IViewRenderer
     {
         private IRazorViewEngine _viewEngine;
         private ITempDataProvider _tempDataProvider;
