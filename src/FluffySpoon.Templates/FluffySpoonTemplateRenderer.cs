@@ -4,95 +4,102 @@ using System.Threading.Tasks;
 using System;
 using System.Reflection;
 using System.Linq;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Mvc.Internal;
+using System.IO;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Routing.Template;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace FluffySpoon.Templates
 {
-    public class FluffySpoonTemplateRenderer : IFluffySpoonTemplateRenderer
-    {
-        private readonly IViewRenderer _viewRenderer;
+	public class FluffySpoonTemplateRenderer : IFluffySpoonTemplateRenderer
+	{
+		private readonly IViewRenderer _viewRenderer;
+		private readonly IActionDescriptorCollectionProvider _actionDescriptorCollectionProvider;
+		private readonly IActionSelector _actionSelector;
+		private readonly IModelBinderProvider _modelBinderProvider;
 
-        public FluffySpoonTemplateRenderer(
-            IViewRenderer viewRenderer)
-        {
-            _viewRenderer = viewRenderer;
-        }
+		public FluffySpoonTemplateRenderer(
+			IViewRenderer viewRenderer,
+			IActionDescriptorCollectionProvider actionDescriptorCollectionProvider,
+			IActionSelector actionSelector,
+			IModelBinderProvider modelBinderProvider)
+		{
+			_viewRenderer = viewRenderer;
+			_actionDescriptorCollectionProvider = actionDescriptorCollectionProvider;
+			_actionSelector = actionSelector;
+			_modelBinderProvider = modelBinderProvider;
+		}
 
-        private TypeBuilder CreateTypeBuilder(string name)
-        {
-            var appDomain = AppDomain.CurrentDomain;
-            var assemblyName = Guid.NewGuid().ToString();
-            var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(
-                new AssemblyName(assemblyName),
-                AssemblyBuilderAccess.Run);
-            var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName);
-            var typeBuilder = moduleBuilder.DefineType(name, TypeAttributes.Public);
-            return typeBuilder;
-        }
+		public async Task<string> RenderAsync(
+			string name,
+			params Controller[] controllers)
+		{
+			var viewModel = new ApiModel(route => CallControllerAction(route, controllers));
+			return await _viewRenderer.RenderAsync(name, viewModel);
+		}
 
-        public async Task<string> RenderAsync(string name, params Controller[] controllers)
-        {
-            var viewModelType = GenerateViewModelType(controllers);
-            var viewModel = Activator.CreateInstance(viewModelType);
-            foreach (var controller in controllers)
-            {
-                var viewModelField = viewModelType.GetField(
-                    GetBackingFieldName(
-                        GetControllerNameFromType(
-                            controller.GetType())),
-                    BindingFlags.NonPublic | BindingFlags.Instance);
-                viewModelField.SetValue(
-                    viewModel,
-                    controller);
-            }
+		private RouteValueDictionary GetRouteValueDefaults(
+			RouteTemplate parsedTemplate)
+		{
+			var result = new RouteValueDictionary();
 
-            return await _viewRenderer.RenderAsync(name, viewModel);
-        }
+			foreach (var parameter in parsedTemplate.Parameters)
+			{
+				if (parameter.DefaultValue != null)
+				{
+					result.Add(parameter.Name, parameter.DefaultValue);
+				}
+			}
 
-        private TypeInfo GenerateViewModelType(Controller[] controllers)
-        {
-            var modelTypeBuilder = CreateTypeBuilder("TemplateViewModel");
-            foreach (var controller in controllers)
-            {
-                var controllerType = controller.GetType();
-                var controllerName = GetControllerNameFromType(controllerType);
+			return result;
+		}
 
-                var controllerFieldBuilder = modelTypeBuilder.DefineField(
-                    GetBackingFieldName(controllerName),
-                    controllerType,
-                    FieldAttributes.Private);
+		private object CallControllerAction(
+			string route,
+			Controller[] controllers)
+		{
+			var actionDescriptors = _actionDescriptorCollectionProvider
+				.ActionDescriptors
+				.Items
+				.OfType<ControllerActionDescriptor>();
 
-                var controllerPropertyGetBuilder = modelTypeBuilder.DefineMethod(
-                    "get_" + controllerName,
-                    MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig,
-                    controllerType,
-                    Type.EmptyTypes);
-                var controllerPropertyGetGenerator = controllerPropertyGetBuilder.GetILGenerator();
-                controllerPropertyGetGenerator.Emit(OpCodes.Ldarg_0);
-                controllerPropertyGetGenerator.Emit(OpCodes.Ldfld, controllerFieldBuilder);
-                controllerPropertyGetGenerator.Emit(OpCodes.Ret);
+			foreach (var actionDescriptor in actionDescriptors) {
+				var attributeRouteInformation = actionDescriptor.AttributeRouteInfo;
+				if (attributeRouteInformation == null)
+					continue;
 
-                var controllerPropertyBuilder = modelTypeBuilder.DefineProperty(
-                    controllerName,
-                    PropertyAttributes.HasDefault,
-                    controllerType,
-                    null);
-                controllerPropertyBuilder.SetGetMethod(controllerPropertyGetBuilder);
-            }
+				var template = TemplateParser.Parse(attributeRouteInformation.Template);
+				var templateMatcher = new TemplateMatcher(
+					template,
+					GetRouteValueDefaults(template));
 
-            var modelType = modelTypeBuilder.CreateTypeInfo();
-            return modelType;
-        }
+				var values = new RouteValueDictionary();
+				if (!templateMatcher.TryMatch(route, values))
+					continue;
+					
+				var method = actionDescriptor.MethodInfo;
+				var controller = controllers.Single(x => x.GetType() == actionDescriptor.ControllerTypeInfo);
 
-        private static string GetControllerNameFromType(Type controllerType)
-        {
-            return controllerType.Name.EndsWith(nameof(Controller)) ?
-                                controllerType.Name.Remove(controllerType.Name.LastIndexOf(nameof(Controller))) :
-                                controllerType.Name;
-        }
+				var parameters = method
+					.GetParameters()
+					.Select(x => values
+						.Single(y => y.Key == x.Name)
+						.Value)
+					.Cast<object>()
+					.ToArray();
+				return method.Invoke(
+					controller,
+					parameters);
+			}
 
-        private static string GetBackingFieldName(string propertyName)
-        {
-            return "_" + propertyName;
-        }
-    }
+			throw new InvalidOperationException("No controller to serve the route \"" + route + "\" was found.");
+		}
+	}
 }

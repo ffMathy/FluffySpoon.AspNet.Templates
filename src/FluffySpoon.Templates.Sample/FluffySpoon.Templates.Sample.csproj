@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\FluffySpoon.Templates\FluffySpoon.Templates.csproj" />
+    <ProjectReference Include="..\FluffySpoon.Templates\FluffySpoon.Templates.csproj" />
   </ItemGroup>
 
 </Project>

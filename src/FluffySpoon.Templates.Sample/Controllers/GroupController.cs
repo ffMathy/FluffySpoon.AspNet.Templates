@@ -6,14 +6,15 @@ using System.Threading.Tasks;
 
 namespace FluffySpoon.Templates.Sample.Controllers
 {
-    public class GroupController: Controller
-    {
-        public string[] GetAllGroups()
-        {
-            return new[]
-            {
-                "foo", "bar"
-            };
-        }
-    }
+	public class GroupController : Controller
+	{
+		[HttpGet("api/groups")]
+		public string[] GetAllGroups()
+		{
+			return new[]
+			{
+				"foo", "bar"
+			};
+		}
+	}
 }
