@@ -14,8 +14,11 @@
 
   <ItemGroup>
     <Folder Include="Models\" />
-    <Folder Include="Views\" />
     <Folder Include="wwwroot\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\FluffySpoon.Templates\FluffySpoon.Templates.csproj" />
   </ItemGroup>
 
 </Project>

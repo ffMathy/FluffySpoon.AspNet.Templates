@@ -7,17 +7,14 @@ using System.Linq;
 
 namespace FluffySpoon.Templates
 {
-    public class FluffySpoonTemplateRenderer
+    public class FluffySpoonTemplateRenderer : IFluffySpoonTemplateRenderer
     {
         private readonly IViewRenderer _viewRenderer;
-        private readonly IServiceProvider _serviceProvider;
 
         public FluffySpoonTemplateRenderer(
-            IViewRenderer viewRenderer,
-            IServiceProvider serviceProvider)
+            IViewRenderer viewRenderer)
         {
             _viewRenderer = viewRenderer;
-            _serviceProvider = serviceProvider;
         }
 
         private TypeBuilder CreateTypeBuilder(string name)
@@ -25,25 +22,27 @@ namespace FluffySpoon.Templates
             var appDomain = AppDomain.CurrentDomain;
             var assemblyName = Guid.NewGuid().ToString();
             var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(
-                new AssemblyName(assemblyName), 
+                new AssemblyName(assemblyName),
                 AssemblyBuilderAccess.Run);
             var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName);
-            var typeBuilder = moduleBuilder.DefineType(name);
+            var typeBuilder = moduleBuilder.DefineType(name, TypeAttributes.Public);
             return typeBuilder;
         }
 
         public async Task<string> RenderAsync(string name, params Controller[] controllers)
         {
             var viewModelType = GenerateViewModelType(controllers);
-            var viewModelProperties = viewModelType
-                .GetProperties()
-                .Where(x => x.GetMethod.IsPublic);
             var viewModel = Activator.CreateInstance(viewModelType);
-            foreach(var viewModelProperty in viewModelProperties)
+            foreach (var controller in controllers)
             {
-                viewModelProperty.SetValue(
+                var viewModelField = viewModelType.GetField(
+                    GetBackingFieldName(
+                        GetControllerNameFromType(
+                            controller.GetType())),
+                    BindingFlags.NonPublic | BindingFlags.Instance);
+                viewModelField.SetValue(
                     viewModel,
-                    _serviceProvider.GetService(viewModelProperty.PropertyType));
+                    controller);
             }
 
             return await _viewRenderer.RenderAsync(name, viewModel);
@@ -55,12 +54,10 @@ namespace FluffySpoon.Templates
             foreach (var controller in controllers)
             {
                 var controllerType = controller.GetType();
-                var controllerName = controllerType.Name.EndsWith(nameof(Controller)) ?
-                    controllerType.Name.Remove(controllerType.Name.LastIndexOf(nameof(Controller))) :
-                    controllerType.Name;
+                var controllerName = GetControllerNameFromType(controllerType);
 
                 var controllerFieldBuilder = modelTypeBuilder.DefineField(
-                    "_" + controllerName,
+                    GetBackingFieldName(controllerName),
                     controllerType,
                     FieldAttributes.Private);
 
@@ -84,6 +81,18 @@ namespace FluffySpoon.Templates
 
             var modelType = modelTypeBuilder.CreateTypeInfo();
             return modelType;
+        }
+
+        private static string GetControllerNameFromType(Type controllerType)
+        {
+            return controllerType.Name.EndsWith(nameof(Controller)) ?
+                                controllerType.Name.Remove(controllerType.Name.LastIndexOf(nameof(Controller))) :
+                                controllerType.Name;
+        }
+
+        private static string GetBackingFieldName(string propertyName)
+        {
+            return "_" + propertyName;
         }
     }
 }

@@ -1,0 +1,6 @@
+﻿<h1>Welcome @Model.User.GetUsername(1337)</h1>
+
+@foreach(var groupName in Model.Group.GetAllGroups())
+{
+    <h2>@groupName</h2>
+}
