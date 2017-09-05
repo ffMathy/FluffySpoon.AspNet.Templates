@@ -23,16 +23,13 @@ namespace FluffySpoon.Templates
 	{
 		private readonly IViewRenderer _viewRenderer;
 		private readonly IActionDescriptorCollectionProvider _actionDescriptorCollectionProvider;
-		private readonly IActionSelector _actionSelector;
 
 		public FluffySpoonTemplateRenderer(
 			IViewRenderer viewRenderer,
-			IActionDescriptorCollectionProvider actionDescriptorCollectionProvider,
-			IActionSelector actionSelector)
+			IActionDescriptorCollectionProvider actionDescriptorCollectionProvider)
 		{
 			_viewRenderer = viewRenderer;
 			_actionDescriptorCollectionProvider = actionDescriptorCollectionProvider;
-			_actionSelector = actionSelector;
 		}
 
 		public async Task<string> RenderAsync(
@@ -85,9 +82,11 @@ namespace FluffySpoon.Templates
 				if (!templateMatcher.TryMatch(route, values))
 					continue;
 					
+				var controller = controllers.SingleOrDefault(x => x.GetType() == actionDescriptor.ControllerTypeInfo);
+				if (controller == null)
+					continue;
+
 				var method = actionDescriptor.MethodInfo;
-				var controller = controllers.Single(x => x.GetType() == actionDescriptor.ControllerTypeInfo);
-				
 				var parameters = method
 					.GetParameters()
 					.Select(x =>
