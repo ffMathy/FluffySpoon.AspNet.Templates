@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 
 namespace FluffySpoon.Templates
 {
@@ -23,18 +24,15 @@ namespace FluffySpoon.Templates
 		private readonly IViewRenderer _viewRenderer;
 		private readonly IActionDescriptorCollectionProvider _actionDescriptorCollectionProvider;
 		private readonly IActionSelector _actionSelector;
-		private readonly IModelBinderProvider _modelBinderProvider;
 
 		public FluffySpoonTemplateRenderer(
 			IViewRenderer viewRenderer,
 			IActionDescriptorCollectionProvider actionDescriptorCollectionProvider,
-			IActionSelector actionSelector,
-			IModelBinderProvider modelBinderProvider)
+			IActionSelector actionSelector)
 		{
 			_viewRenderer = viewRenderer;
 			_actionDescriptorCollectionProvider = actionDescriptorCollectionProvider;
 			_actionSelector = actionSelector;
-			_modelBinderProvider = modelBinderProvider;
 		}
 
 		public async Task<string> RenderAsync(
@@ -68,6 +66,9 @@ namespace FluffySpoon.Templates
 			var actionDescriptors = _actionDescriptorCollectionProvider
 				.ActionDescriptors
 				.Items
+				.Where(x => x
+					?.ActionConstraints
+					?.Any() == true)
 				.OfType<ControllerActionDescriptor>();
 
 			foreach (var actionDescriptor in actionDescriptors) {
@@ -86,12 +87,16 @@ namespace FluffySpoon.Templates
 					
 				var method = actionDescriptor.MethodInfo;
 				var controller = controllers.Single(x => x.GetType() == actionDescriptor.ControllerTypeInfo);
-
+				
 				var parameters = method
 					.GetParameters()
-					.Select(x => values
-						.Single(y => y.Key == x.Name)
-						.Value)
+					.Select(x =>
+					{
+						var value = values
+							.Single(y => y.Key == x.Name)
+							.Value;
+						return Convert.ChangeType(value, x.ParameterType);
+					})
 					.Cast<object>()
 					.ToArray();
 				return method.Invoke(
