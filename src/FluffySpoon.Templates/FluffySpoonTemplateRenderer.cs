@@ -22,14 +22,14 @@ namespace FluffySpoon.Templates
 	public class FluffySpoonTemplateRenderer : IFluffySpoonTemplateRenderer
 	{
 		private readonly IViewRenderer _viewRenderer;
-		private readonly IManualActionSelector _manualActionSelector;
+		private readonly IActionDescriptorCollectionProvider _actionDescriptorCollectionProvider;
 
 		public FluffySpoonTemplateRenderer(
 			IViewRenderer viewRenderer,
-			IManualActionSelector manualActionSelector)
+			IActionDescriptorCollectionProvider actionDescriptorCollectionProvider)
 		{
 			_viewRenderer = viewRenderer;
-			_manualActionSelector = manualActionSelector;
+			_actionDescriptorCollectionProvider = actionDescriptorCollectionProvider;
 		}
 
 		public async Task<string> RenderAsync(
@@ -60,8 +60,6 @@ namespace FluffySpoon.Templates
 			string route,
 			Controller[] controllers)
 		{
-			var stuff = _manualActionSelector.GetMatchingAction(route, "GET");
-
 			var actionDescriptors = _actionDescriptorCollectionProvider
 				.ActionDescriptors
 				.Items
