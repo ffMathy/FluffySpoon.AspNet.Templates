@@ -31,7 +31,7 @@ namespace FluffySpoon.Templates
         public async Task<string> RenderAsync<TModel>(string name, TModel model)
         {
             var actionContext = GetActionContext();
-
+			
             var viewEngineResult = _viewEngine.FindView(actionContext, name, false);
             if (!viewEngineResult.Success)
             {
@@ -39,6 +39,7 @@ namespace FluffySpoon.Templates
             }
 
             var view = viewEngineResult.View;
+
             using (var output = new StringWriter())
             {
                 var viewContext = new ViewContext(
