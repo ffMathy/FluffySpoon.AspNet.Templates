@@ -27,7 +27,6 @@ namespace FluffySpoon.Templates.Sample
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseBrowserLink();
             }
 
             app.UseStaticFiles();
