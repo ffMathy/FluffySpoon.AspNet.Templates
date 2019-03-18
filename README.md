@@ -31,8 +31,8 @@ public class GroupController : Controller
 
 public class UserController : Controller
 {
-	[HttpGet("api/users/{userId}")]
-	public string GetUsername(int userId)
+    [HttpGet("api/users/{userId}")]
+    public string GetUsername(int userId)
     {
         return "username" + userId;
     }
