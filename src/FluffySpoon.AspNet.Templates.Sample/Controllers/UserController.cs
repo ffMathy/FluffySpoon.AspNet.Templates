@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace FluffySpoon.Templates.Sample.Controllers
+namespace FluffySpoon.AspNet.Templates.Sample.Controllers
 {
     public class UserController : Controller
 	{

@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 
-namespace FluffySpoon.Templates
+namespace FluffySpoon.AspNet.Templates
 {
-    public interface IFluffySpoonTemplateRenderer
+    public interface ITemplateRenderer
     {
         Task<string> RenderAsync(
 			string name, 

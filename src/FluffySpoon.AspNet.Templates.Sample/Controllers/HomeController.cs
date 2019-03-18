@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
-namespace FluffySpoon.Templates.Sample.Controllers
+namespace FluffySpoon.AspNet.Templates.Sample.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly IFluffySpoonTemplateRenderer _templateRenderer;
+        private readonly ITemplateRenderer _templateRenderer;
 
         public HomeController(
-            IFluffySpoonTemplateRenderer templateRenderer)
+            ITemplateRenderer templateRenderer)
         {
             _templateRenderer = templateRenderer;
         }

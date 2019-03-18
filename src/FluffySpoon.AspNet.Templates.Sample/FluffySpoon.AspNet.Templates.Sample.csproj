@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <StartupObject>FluffySpoon.AspNet.Templates.Sample.Program</StartupObject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FluffySpoon.AspNet.Templates\FluffySpoon.AspNet.Templates.csproj" />
+  </ItemGroup>
+
+</Project>

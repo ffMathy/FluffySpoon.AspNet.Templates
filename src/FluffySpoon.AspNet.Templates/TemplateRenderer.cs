@@ -17,14 +17,14 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 
-namespace FluffySpoon.Templates
+namespace FluffySpoon.AspNet.Templates
 {
-	public class FluffySpoonTemplateRenderer : IFluffySpoonTemplateRenderer
+	public class TemplateRenderer : ITemplateRenderer
 	{
 		private readonly IViewRenderer _viewRenderer;
 		private readonly IActionDescriptorCollectionProvider _actionDescriptorCollectionProvider;
 
-		public FluffySpoonTemplateRenderer(
+		public TemplateRenderer(
 			IViewRenderer viewRenderer,
 			IActionDescriptorCollectionProvider actionDescriptorCollectionProvider)
 		{

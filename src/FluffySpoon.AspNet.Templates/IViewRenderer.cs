@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace FluffySpoon.Templates
+namespace FluffySpoon.AspNet.Templates
 {
     public interface IViewRenderer
     {

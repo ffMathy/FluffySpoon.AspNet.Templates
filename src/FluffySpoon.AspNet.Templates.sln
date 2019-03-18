@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26730.10
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28711.60
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluffySpoon.Templates", "FluffySpoon.Templates\FluffySpoon.Templates.csproj", "{BF1DB47A-CA4E-41E3-B2AF-10AF04681C32}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluffySpoon.AspNet.Templates", "FluffySpoon.AspNet.Templates\FluffySpoon.AspNet.Templates.csproj", "{BF1DB47A-CA4E-41E3-B2AF-10AF04681C32}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluffySpoon.Templates.Sample", "FluffySpoon.Templates.Sample\FluffySpoon.Templates.Sample.csproj", "{4604FB58-D2C8-427A-9E85-D98AE75E4E53}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluffySpoon.AspNet.Templates.Sample", "FluffySpoon.AspNet.Templates.Sample\FluffySpoon.AspNet.Templates.Sample.csproj", "{4604FB58-D2C8-427A-9E85-D98AE75E4E53}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

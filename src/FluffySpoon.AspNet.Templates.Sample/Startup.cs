@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FluffySpoon.Templates.Sample
+namespace FluffySpoon.AspNet.Templates.Sample
 {
     public class Startup
     {

@@ -10,7 +10,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace FluffySpoon.Templates
+namespace FluffySpoon.AspNet.Templates
 {
     class ViewRenderer : IViewRenderer
     {

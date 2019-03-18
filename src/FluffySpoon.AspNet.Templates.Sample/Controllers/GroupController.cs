@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace FluffySpoon.Templates.Sample.Controllers
+namespace FluffySpoon.AspNet.Templates.Sample.Controllers
 {
 	public class GroupController : Controller
 	{

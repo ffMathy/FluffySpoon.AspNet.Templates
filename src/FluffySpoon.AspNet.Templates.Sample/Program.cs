@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace FluffySpoon.Templates.Sample
+namespace FluffySpoon.AspNet.Templates.Sample
 {
     public class Program
     {
