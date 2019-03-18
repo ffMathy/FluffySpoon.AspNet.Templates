@@ -70,7 +70,7 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
-		//here we specify that only UserController and GroupController can be invoked via the view.
+        //here we specify that only UserController and GroupController can be invoked via the view.
         var html = await _templateRenderer.RenderAsync(
             "MyView",
             new UserController(),
