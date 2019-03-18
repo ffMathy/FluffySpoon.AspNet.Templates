@@ -10,6 +10,7 @@ namespace FluffySpoon.AspNet.Templates
         public static void AddFluffySpoonTemplating(this IServiceCollection services)
         {
             services.AddScoped<IViewRenderer, ViewRenderer>();
+            services.AddScoped<IViewValidator, ViewValidator>();
             services.AddScoped<ITemplateRenderer, TemplateRenderer>();
         }
     }

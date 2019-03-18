@@ -1,5 +1,9 @@
-# FluffySpoon.Templates
+# FluffySpoon.AspNet.Templates
 A library allowing users to use Razor as markup in a template, with API operations from ASP .NET Controllers without making HTTP requests.
+
+Useful if you are hosting a system (for instance a webshop system) where the user can modify his templates (cshtml files). By using this approach, the user gets all the flexibility of the shop system's API, but it is rendered server-side (so safe and hidden from the webbrowser).
+
+This also has the benefit of you only having to worry about your own API and its scalability and stability. In other words, dogfeeding your own stuff.
 
 ## Usage
 To use the templating system, 3 steps are required.
@@ -84,3 +88,10 @@ The result is seen below.
 <h2>foo</h2>
 <h2>bar</h2>
 ```
+
+## Is this safe for production use?
+Yes. With this library, it is impossible to use anything else than `Model` and its properties in a view file. If you (for instance) try to invoke unsafe code like in `System.Reflection`, the view will not run and throw a `ViewValidationException`.
+
+There is no magic going on in this library. I use Microsoft's routing engine, their Razor engine and action selector engine straight out of ASP .NET Core. This means that there is no funky behavior involved.
+
+For the validation part, I use Roslyn to very strictly only allow any form of statement from `Model` in the view.

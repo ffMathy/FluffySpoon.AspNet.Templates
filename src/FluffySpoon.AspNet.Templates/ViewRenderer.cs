@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using FluffySpoon.AspNet.Templates.Exceptions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -14,18 +15,21 @@ namespace FluffySpoon.AspNet.Templates
 {
     class ViewRenderer : IViewRenderer
     {
-        private IRazorViewEngine _viewEngine;
-        private ITempDataProvider _tempDataProvider;
-        private IServiceProvider _serviceProvider;
+        private readonly IRazorViewEngine _viewEngine;
+        private readonly ITempDataProvider _tempDataProvider;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly IViewValidator _viewValidator;
 
         public ViewRenderer(
             IRazorViewEngine viewEngine,
             ITempDataProvider tempDataProvider,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider,
+            IViewValidator viewValidator)
         {
             _viewEngine = viewEngine;
             _tempDataProvider = tempDataProvider;
             _serviceProvider = serviceProvider;
+            _viewValidator = viewValidator;
         }
 
         public async Task<string> RenderAsync<TModel>(string name, TModel model)
@@ -34,11 +38,12 @@ namespace FluffySpoon.AspNet.Templates
 			
             var viewEngineResult = _viewEngine.FindView(actionContext, name, false);
             if (!viewEngineResult.Success)
-            {
                 throw new InvalidOperationException(string.Format("Couldn't find view '{0}'", name));
-            }
 
             var view = viewEngineResult.View;
+            var validationException = await _viewValidator.ValidateAsync(view.Path);
+            if (validationException != null)
+                throw validationException;
 
             using (var output = new StringWriter())
             {
